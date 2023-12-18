@@ -12,22 +12,50 @@ const STR_NUM_MAP = {
   nine: 9,
 };
 
-fs.readFile("input.txt", "utf8", (_, data) => {
+fs.readFile("input.txt", "utf8", (err, data) => {
+  if (err) {
+    console.error("Error reading file:", err);
+    return;
+  }
   const calibrations = data.split("\n");
+  console.log(sum(calibrations));
+});
 
-  const sum = calibrations.reduce((acc, code) => {
+const sum = (calibrations) =>
+  calibrations.reduce((acc, code) => {
     const letters = code.split("");
 
     let firstNumber = null;
     let lastNumber = null;
+    let firstString = "";
+    let lastString = "";
 
     for (x = 0; x <= letters.length; x++) {
-      if (!isNaN(letters[x]) && !firstNumber) {
-        firstNumber = letters[x];
+      if (!firstNumber) {
+        if (isLetterNumber(letters[x])) {
+          firstNumber = letters[x];
+        }
+
+        const firstStringKey = getStringKey(firstString);
+        if (firstStringKey) {
+          firstNumber = STR_NUM_MAP[firstStringKey];
+        } else {
+          firstString += letters[x];
+        }
       }
-      const index = letters.length - x;
-      if (!isNaN(letters[index]) && !lastNumber) {
-        lastNumber = letters[index];
+
+      if (!lastNumber) {
+        const index = letters.length - x - 1;
+        if (isLetterNumber(letters[index])) {
+          lastNumber = letters[index];
+        }
+
+        const lastStringKey = getStringKey(reverseString(lastString));
+        if (lastStringKey) {
+          lastNumber = STR_NUM_MAP[lastStringKey];
+        } else {
+          lastString += letters[index];
+        }
       }
 
       if (firstNumber && lastNumber) {
@@ -35,8 +63,17 @@ fs.readFile("input.txt", "utf8", (_, data) => {
         break;
       }
     }
-  });
-  console.log(sum);
-});
 
-const isStringNumber = (str) => (STR_NUM_MAP?.[str] ? STR_NUM_MAP[str] : false);
+    return acc;
+  }, 0);
+
+const isLetterNumber = (str) => !isNaN(str);
+
+const reverseString = (str) => str.split("").reverse().join("");
+
+const getStringKey = (str) => {
+  if (str.length < 3) return null;
+  const numberStrings = Object.keys(STR_NUM_MAP);
+  const key = numberStrings.find((numberString) => str.includes(numberString));
+  return key ? key : null;
+};
