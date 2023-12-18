@@ -14,9 +14,8 @@ const STR_NUM_MAP = {
 
 fs.readFile("input.txt", "utf8", (_, data) => {
   const calibrations = data.split("\n");
-  let sum = 0;
 
-  calibrations.forEach((code) => {
+  const sum = calibrations.reduce((acc, code) => {
     const letters = code.split("");
 
     let firstNumber = null;
@@ -32,7 +31,7 @@ fs.readFile("input.txt", "utf8", (_, data) => {
       }
 
       if (firstNumber && lastNumber) {
-        sum += Number(`${firstNumber}${lastNumber}`);
+        acc += Number(`${firstNumber}${lastNumber}`);
         break;
       }
     }
