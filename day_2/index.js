@@ -1,6 +1,6 @@
 const fs = require("fs");
 
-const limit = {
+const COLOUR_LIMIT = {
   red: 12,
   green: 13,
   blue: 14,
@@ -12,11 +12,14 @@ fs.readFile("input.txt", "utf8", (err, data) => {
     return;
   }
   const games = data.split("\n");
-  console.log(accumulatePossibleRounds(games));
+  const {accumulator, powerAccumulator} = accumulatePossibleRounds(games);
+  console.log(accumulator)
+  console.log(powerAccumulator)
 });
 
 const accumulatePossibleRounds = (games) => {
   let accumulator = 0;
+  let powerAccumulator = 0;
 
   games.forEach((game) => {
     const gameSplit = game.split(": ");
@@ -24,15 +27,21 @@ const accumulatePossibleRounds = (games) => {
     const rounds = gameSplit[1].split("; ").map((r) => r.split(", "));
 
     let isGameValid = true;
+    let minimumColours = {
+      red: 0,
+      green: 0,
+      blue: 0
+    }
 
     rounds.forEach((round) => {
-      if (!isGameValid) return;
-
       round.forEach((turn) => {
         const [number, colour] = turn.split(" ");
-        if (number > limit[colour]) {
+        if (number > COLOUR_LIMIT[colour]) {
           isGameValid = false;
-          return;
+        }
+
+        if(Number(minimumColours[colour]) < number) {
+          minimumColours[colour] = number;
         }
       });
     });
@@ -42,7 +51,9 @@ const accumulatePossibleRounds = (games) => {
     }
 
     isGameValid = true;
+
+    powerAccumulator += (minimumColours.red * minimumColours.green * minimumColours.blue)
   });
 
-  return accumulator;
+  return {accumulator, powerAccumulator};
 };
