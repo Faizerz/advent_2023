@@ -6,90 +6,91 @@ fs.readFile("test.txt", "utf8", (err, data) => {
     return;
   }
 
-  console.log("====", accumulateData(data));
+  const { accumulator, gearAccumulator } = accumulateData(data);
+
+  console.log("====", accumulator);
+  console.log("****", gearAccumulator);
 });
 
 const accumulateData = (data) => {
-  const rows = data.split("\n");
+  let rows = data.split("\n");
   const totalRows = rows.length;
-  const totalColumns = rows[0].length;
-  console.log(totalRows);
-  console.log(totalColumns);
+  const totalCols = rows[0].length;
   let accumulator = 0;
+  let gearAccumulator = 0;
 
   for (let y = 0; y < totalRows; y++) {
-    for (let x = 0; x < totalColumns; x++) {
+    for (let x = 0; x < totalCols; x++) {
       const currentLetter = rows[y][x];
       if (isSymbol(currentLetter)) {
-        //
-        // Check surroundings of symbol
+        gearsFound = 0;
+        gearNumbers = [];
         for (let j = -1; j <= 1; j++) {
-          let checked = [];
           for (let i = -1; i <= 1; i++) {
             let innerY = y + j;
             let innerX = x + i;
 
-            if (isValidCoordinate(i, j, innerX, innerY, totalRows)) {
-              if (
-                isNumber(rows[innerY][innerX]) &&
-                !checked.includes(`${innerY},${innerX}`)
-              ) {
-                let number = rows[innerY][innerX];
-                for (let z = -2; z <= 2; z++) {
-                  let adj = rows?.[innerY]?.[innerX + z];
-                  if (number.length > 1 && adj === ".") {
-                    break;
-                  }
+            if (
+              isValidCoordinate(i, j, innerX, innerY, totalRows, totalCols) &&
+              isNumber(rows[innerY][innerX])
+            ) {
+              gearsFound += 1;
+              let number = rows[innerY][innerX];
+              rows[innerY] = mutateNumberToPeriod(rows, innerY, innerX);
 
-                  if (
-                    checked.includes(`${innerY},${innerX + z}`) ||
-                    adj === "." ||
-                    !adj
-                  ) {
-                    continue;
-                  }
+              const oneToLeft = rows[innerY][innerX - 1];
+              if (isNumber(oneToLeft)) {
+                number = `${oneToLeft}${number}`;
+                rows[innerY] = mutateNumberToPeriod(rows, innerY, innerX - 1);
 
-                  if (isNumber(adj)) {
-                    checked = [...checked, `${innerY},${innerX + z}`];
-                    if (z > 0) {
-                      number = `${number}${adj}`;
-                    } else if (z < 0) {
-                      if (z === -1 && number.length > 1) {
-                        number = `${number.split("")[0]}${adj}${
-                          number.split("")[1]
-                        }`;
-                      } else if (
-                        z === -2 &&
-                        !isNumber(rows?.[innerY]?.[innerX - 1])
-                      ) {
-                        continue;
-                      } else {
-                        number = `${adj}${number}`;
-                      }
-                    }
-                  }
+                const twoToLeft = rows[innerY][innerX - 2];
+                if (isNumber(twoToLeft)) {
+                  number = `${twoToLeft}${number}`;
+                  rows[innerY] = mutateNumberToPeriod(rows, innerY, innerX - 2);
                 }
-                console.log(number);
-                accumulator += Number(number);
               }
+
+              const oneToRight = rows[innerY][innerX + 1];
+              if (isNumber(oneToRight)) {
+                number = `${number}${oneToRight}`;
+                rows[innerY] = mutateNumberToPeriod(rows, innerY, innerX + 1);
+
+                const twoToRight = rows[innerY][innerX + 2];
+                if (isNumber(twoToRight)) {
+                  number = `${number}${twoToRight}`;
+                  rows[innerY] = mutateNumberToPeriod(rows, innerY, innerX + 2);
+                }
+              }
+
+              gearNumbers = [...gearNumbers, Number(number)];
+              accumulator += Number(number);
             }
           }
-          checked = [];
         }
+
+        if (isStar(currentLetter) && gearsFound === 2) {
+          gearAccumulator += gearNumbers[0] * gearNumbers[1];
+        }
+
+        gearsFound = 0;
+        gearNumbers = [];
       }
     }
   }
 
-  return accumulator;
+  return { accumulator, gearAccumulator };
 };
 
+const isStar = (str) => str === "*";
 const isSymbol = (str) => isNaN(str) && str !== ".";
 const isNumber = (str) => !isNaN(str);
-const isValidCoordinate = (i, j, innerX, innerY, totalRows) =>
+const isValidCoordinate = (i, j, innerX, innerY, totalRows, totalCols) =>
   !(
     (i === 0 && j === 0) ||
-    innerY > totalRows ||
+    innerY >= totalRows ||
     innerY < 0 ||
-    innerX >= 10 ||
+    innerX >= totalCols ||
     innerX < 0
   );
+const mutateNumberToPeriod = (rows, y, x) =>
+  rows[y].slice(0, x) + "." + rows[y].slice(x + 1);
