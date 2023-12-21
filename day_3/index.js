@@ -12,11 +12,13 @@ fs.readFile("test.txt", "utf8", (err, data) => {
 const accumulateData = (data) => {
   const rows = data.split("\n");
   const totalRows = rows.length;
-  console.log(data);
+  const totalColumns = rows[0].length;
+  console.log(totalRows);
+  console.log(totalColumns);
   let accumulator = 0;
 
   for (let y = 0; y < totalRows; y++) {
-    for (let x = 0; x < 10; x++) {
+    for (let x = 0; x < totalColumns; x++) {
       const currentLetter = rows[y][x];
       if (isSymbol(currentLetter)) {
         //
@@ -46,6 +48,7 @@ const accumulateData = (data) => {
                   ) {
                     continue;
                   }
+
                   if (isNumber(adj)) {
                     checked = [...checked, `${innerY},${innerX + z}`];
                     if (z > 0) {
@@ -55,6 +58,11 @@ const accumulateData = (data) => {
                         number = `${number.split("")[0]}${adj}${
                           number.split("")[1]
                         }`;
+                      } else if (
+                        z === -2 &&
+                        !isNumber(rows?.[innerY]?.[innerX - 1])
+                      ) {
+                        continue;
                       } else {
                         number = `${adj}${number}`;
                       }
