@@ -6,14 +6,36 @@ fs.readFile("test.txt", "utf8", (err, data) => {
     return;
   }
 
-  const { solution } = accumulateData(data);
+  const { solution } = accumulateData(data.split("\n"));
 
   console.log("====", solution);
 });
 
-const accumulateData = (data) => {
-    const numbersInPlay = data.split(': ')[1]
-    
-    console.log(numbersInPlay)
-    return {solution: 0}
+const accumulateData = (games) => {
+  let solution = 0;
+
+  games.forEach((game) => {
+    const numbersInPlay = game.split(": ")[1].split(" | ");
+    const winningNums = numbersInPlay[0].split(" ").filter(Boolean);
+    const elfsNums = numbersInPlay[1].split(" ").filter(Boolean);
+
+    const pointsMap = winningNums.reduce(
+      (acc, num, i) => ({
+        ...acc,
+        [num]: i,
+      }),
+      {}
+    );
+
+    console.log(elfsNums);
+
+    const gameTotal = elfsNums.reduce(
+      (acc, num) => (acc += pointsMap?.[num] ? pointsMap[num] : 0),
+      0
+    );
+    console.log(pointsMap);
+    console.log(gameTotal);
+  });
+
+  return { solution };
 };
