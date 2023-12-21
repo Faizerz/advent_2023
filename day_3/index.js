@@ -6,7 +6,7 @@ fs.readFile("test.txt", "utf8", (err, data) => {
     return;
   }
 
-  accumulateData(data);
+  console.log("====", accumulateData(data));
 });
 
 const accumulateData = (data) => {
@@ -33,11 +33,12 @@ const accumulateData = (data) => {
                 !checked.includes(`${innerY},${innerX}`)
               ) {
                 let number = rows[innerY][innerX];
-                console.log(number);
                 for (let z = -2; z <= 2; z++) {
                   let adj = rows?.[innerY]?.[innerX + z];
-                  console.log(`${innerY},${innerX + z}`);
-                  console.log(checked.includes(`${innerY},${innerX + z}`));
+                  if (number.length > 1 && adj === ".") {
+                    break;
+                  }
+
                   if (
                     checked.includes(`${innerY},${innerX + z}`) ||
                     adj === "." ||
@@ -50,14 +51,20 @@ const accumulateData = (data) => {
                     if (z > 0) {
                       number = `${number}${adj}`;
                     } else if (z < 0) {
-                      number = `${adj}${number}`;
+                      if (z === -1 && number.length > 1) {
+                        number = `${number.split("")[0]}${adj}${
+                          number.split("")[1]
+                        }`;
+                      } else {
+                        number = `${adj}${number}`;
+                      }
                     }
                   }
                 }
-                console.log(innerY, innerX, number);
+                console.log(number);
+                accumulator += Number(number);
               }
             }
-            console.log(checked);
           }
           checked = [];
         }
