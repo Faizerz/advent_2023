@@ -18,7 +18,7 @@ fs.readFile("input.txt", "utf8", (err, data) => {
     return;
   }
   const calibrations = data.split("\n");
-  console.log(sum(calibrations));
+  console.log('=', sum(calibrations));
 });
 
 const sum = (calibrations) =>

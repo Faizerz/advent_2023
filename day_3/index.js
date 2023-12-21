@@ -1,6 +1,6 @@
 const fs = require("fs");
 
-fs.readFile("test.txt", "utf8", (err, data) => {
+fs.readFile("input.txt", "utf8", (err, data) => {
   if (err) {
     console.error("Error reading file:", err);
     return;
@@ -8,8 +8,8 @@ fs.readFile("test.txt", "utf8", (err, data) => {
 
   const { accumulator, gearAccumulator } = accumulateData(data);
 
-  console.log("====", accumulator);
-  console.log("****", gearAccumulator);
+  console.log("===", accumulator);
+  console.log("***", gearAccumulator);
 });
 
 const accumulateData = (data) => {

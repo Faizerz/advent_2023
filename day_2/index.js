@@ -13,17 +13,17 @@ fs.readFile("input.txt", "utf8", (err, data) => {
   }
   const games = data.split("\n");
   const {accumulator, powerAccumulator} = accumulatePossibleRounds(games);
-  console.log(accumulator)
-  console.log(powerAccumulator)
+  console.log('--', accumulator)
+  console.log('==', powerAccumulator)
 });
 
 const accumulatePossibleRounds = (games) => {
   let accumulator = 0;
   let powerAccumulator = 0;
 
-  games.forEach((game) => {
+  games.forEach((game, i) => {
     const gameSplit = game.split(": ");
-    const roundNumber = Number(gameSplit[0].split(" ")[1]);
+    const roundNumber = i + 1
     const rounds = gameSplit[1].split("; ").map((r) => r.split(", "));
 
     let isGameValid = true;
