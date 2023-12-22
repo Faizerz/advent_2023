@@ -1,6 +1,6 @@
 const fs = require("fs");
 
-fs.readFile("input.txt", "utf8", (err, data) => {
+fs.readFile("test.txt", "utf8", (err, data) => {
   if (err) {
     console.error("Error reading file:", err);
     return;
@@ -11,7 +11,7 @@ fs.readFile("input.txt", "utf8", (err, data) => {
 });
 
 const getLowestLocation = (data) => {
-  let lowestLocation = null
+  let lowestLocation = null;
   const seeds = data[0].split(": ")[1].split(" ");
   const rest = data.slice(2, data.length);
   const dataMaps = getDataMaps(rest);
@@ -35,8 +35,8 @@ const getLowestLocation = (data) => {
     const humidity = temperatureToHumidity[temperature] || temperature;
     const location = humidityToLocation[humidity] || humidity;
 
+    console.log(location);
     if (location < lowestLocation || lowestLocation === null) {
-      console.log(location)
       lowestLocation = location;
     }
   }
