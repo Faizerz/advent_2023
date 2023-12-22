@@ -15,25 +15,32 @@ const getLowestLocation = (data) => {
   const seeds = data[0].split(": ")[1].split(" ");
   const rest = data.slice(2, data.length);
   const dataMaps = getDataMaps(rest);
-  const {
-    "seed-to-soil": seedToSoil,
-    "soil-to-fertilizer": soilToFertalizer,
-    "fertilizer-to-water": fertalizerToWater,
-    "water-to-light": waterToLight,
-    "light-to-temperature": lightToTemperature,
-    "temperature-to-humidity": temperatureToHumidity,
-    "humidity-to-location": humidityToLocation,
-  } = getFormattedMaps(dataMaps);
+  const formattedMaps = getFormattedMaps(dataMaps);
 
   for (let i = 0; i < seeds.length; i++) {
     const seed = Number(seeds[i]);
-    const soil = getValueFromMap(seed, seedToSoil);
-    const fertilizer = getValueFromMap(soil, soilToFertalizer);
-    const water = getValueFromMap(fertilizer, fertalizerToWater);
-    const light = getValueFromMap(water, waterToLight);
-    const temperature = getValueFromMap(light, lightToTemperature);
-    const humidity = getValueFromMap(temperature, temperatureToHumidity);
-    const location = getValueFromMap(humidity, humidityToLocation);
+    const soil = getValueFromMap(seed, formattedMaps["seed-to-soil"]);
+    const fertilizer = getValueFromMap(
+      soil,
+      formattedMaps["soil-to-fertilizer"]
+    );
+    const water = getValueFromMap(
+      fertilizer,
+      formattedMaps["fertilizer-to-water"]
+    );
+    const light = getValueFromMap(water, formattedMaps["water-to-light"]);
+    const temperature = getValueFromMap(
+      light,
+      formattedMaps["light-to-temperature"]
+    );
+    const humidity = getValueFromMap(
+      temperature,
+      formattedMaps["temperature-to-humidity"]
+    );
+    const location = getValueFromMap(
+      humidity,
+      formattedMaps["humidity-to-location"]
+    );
 
     console.log(
       "seed",
@@ -90,13 +97,13 @@ const getFormattedMaps = (dataMaps) => {
   for (const [key, value] of Object.entries(dataMaps)) {
     maps[key] = value.reduce((acc, row) => {
       const splitRow = row.split(" ");
-      const soilRange = Number(splitRow[0]);
-      const seedRange = Number(splitRow[1]);
+      const destinationRange = Number(splitRow[0]);
+      const sourceRange = Number(splitRow[1]);
       const rangeLength = Number(splitRow[2]);
 
-      const minOfRage = seedRange;
-      const maxOfRange = seedRange + rangeLength;
-      const difference = soilRange - seedRange;
+      const minOfRage = sourceRange;
+      const maxOfRange = sourceRange + rangeLength;
+      const difference = destinationRange - sourceRange;
 
       return [...acc, [minOfRage, maxOfRange, difference]];
     }, []);
