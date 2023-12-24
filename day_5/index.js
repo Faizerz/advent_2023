@@ -1,24 +1,21 @@
 const fs = require("fs");
 
-fs.readFile("input.txt", "utf8", (err, data) => {
+fs.readFile("test.txt", "utf8", (err, data) => {
   if (err) {
     console.error("Error reading file:", err);
     return;
   }
 
   const splitData = data.split("\n");
-  const partOne = getLowestLocation(splitData, 1);
+  const partOne = getLowestLocation(splitData);
   console.log("-----", partOne);
-  // const partTwo = getLowestLocation(splitData, 2);
+  // const partTwo = getLowestLocation(splitData);
   // console.log("=====", partTwo);
 });
 
-const getLowestLocation = (data, part) => {
+const getLowestLocation = (data) => {
   let lowestLocation = null;
-  const seeds =
-    part === 1
-      ? data[0].split(": ")[1].split(" ")
-      : getSeedsForPartTwo(data[0].split(": ")[1].split(" "));
+  const seeds = data[0].split(": ")[1].split(" ");
 
   const remainingData = data.slice(2, data.length);
   const dataMaps = getDataMaps(remainingData);
@@ -48,26 +45,6 @@ const getLowestLocation = (data, part) => {
       humidity,
       formattedMaps["humidity-to-location"]
     );
-
-    // console.log(
-    //   "seed",
-    //   seed,
-    //   "soil",
-    //   soil,
-    //   "fertilizer",
-    //   fertilizer,
-    //   "water",
-    //   water,
-    //   "light",
-    //   light,
-    //   "temperature",
-    //   temperature,
-    //   "humidity",
-    //   humidity,
-    //   "location",
-    //   location
-    // );
-    console.log(location);
 
     if (location < lowestLocation || lowestLocation === null) {
       lowestLocation = location;
@@ -136,15 +113,42 @@ const getValueFromMap = (x, rangeArray) => {
   return value ? value : x;
 };
 
-const getSeedsForPartTwo = (seeds) => {
-  const allSeeds = seeds.reduce((acc, seed, i) => {
-    if (i % 2 === 0) {
-      for (let x = 0; x < seeds[i + 1]; x++) {
-        acc.push(Number(seed) + x);
-      }
-    }
-    return acc;
-  }, []);
+const getValueFromMapPartTwo = (seeds, ranges) => {
+  console.log("ranges", ranges);
+  console.log("seeds", seeds);
 
-  return allSeeds;
+  let value = 0;
+
+  seeds.forEach((seedString, i) => {
+    if (value) return;
+    ranges.forEach((range) => {
+      const seed = Number(seedString);
+      const rangeMin = Number(range[0]);
+      const rangeMax = Number(range[1]);
+      const rangeDifference = Number(range[2]);
+
+      if (i % 2 === 0) {
+        // const maxSeedValue = Number(seed) + Number(seeds[i + 1]) - 1;
+        // console.log(
+        //   "seed",
+        //   seed,
+        //   "rangeMin",
+        //   rangeMin,
+        //   "rangeMax",
+        //   rangeMax,
+        //   "rangeDifference",
+        //   rangeDifference
+        // );
+        const newValue = Number(seed) + rangeDifference;
+
+        if (seed >= rangeMin && seed <= rangeMax && value < newValue) {
+          value = seed + rangeDifference;
+          return;
+        }
+      }
+    });
+  });
+
+  console.log("value", value);
+  return value;
 };
