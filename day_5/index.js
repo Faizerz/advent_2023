@@ -6,15 +6,22 @@ fs.readFile("input.txt", "utf8", (err, data) => {
     return;
   }
 
-  const { lowestLocation } = getLowestLocation(data.split("\n"));
-  console.log("-----", lowestLocation);
+  const splitData = data.split("\n");
+  const partOne = getLowestLocation(splitData, 1);
+  console.log("-----", partOne);
+  // const partTwo = getLowestLocation(splitData, 2);
+  // console.log("=====", partTwo);
 });
 
-const getLowestLocation = (data) => {
+const getLowestLocation = (data, part) => {
   let lowestLocation = null;
-  const seeds = data[0].split(": ")[1].split(" ");
-  const rest = data.slice(2, data.length);
-  const dataMaps = getDataMaps(rest);
+  const seeds =
+    part === 1
+      ? data[0].split(": ")[1].split(" ")
+      : getSeedsForPartTwo(data[0].split(": ")[1].split(" "));
+
+  const remainingData = data.slice(2, data.length);
+  const dataMaps = getDataMaps(remainingData);
   const formattedMaps = getFormattedMaps(dataMaps);
 
   for (let i = 0; i < seeds.length; i++) {
@@ -42,31 +49,32 @@ const getLowestLocation = (data) => {
       formattedMaps["humidity-to-location"]
     );
 
-    console.log(
-      "seed",
-      seed,
-      "soil",
-      soil,
-      "fertilizer",
-      fertilizer,
-      "water",
-      water,
-      "light",
-      light,
-      "temperature",
-      temperature,
-      "humidity",
-      humidity,
-      "location",
-      location
-    );
+    // console.log(
+    //   "seed",
+    //   seed,
+    //   "soil",
+    //   soil,
+    //   "fertilizer",
+    //   fertilizer,
+    //   "water",
+    //   water,
+    //   "light",
+    //   light,
+    //   "temperature",
+    //   temperature,
+    //   "humidity",
+    //   humidity,
+    //   "location",
+    //   location
+    // );
+    console.log(location);
 
     if (location < lowestLocation || lowestLocation === null) {
       lowestLocation = location;
     }
   }
 
-  return { lowestLocation };
+  return lowestLocation;
 };
 
 const getDataMaps = (data) => {
@@ -119,11 +127,24 @@ const getValueFromMap = (x, rangeArray) => {
     const max = rangeItem[1];
     const difference = rangeItem[2];
 
-    if (min <= x && x <= max) {
+    if (min <= x && x < max) {
       value = x + difference;
       return;
     }
   });
 
   return value ? value : x;
+};
+
+const getSeedsForPartTwo = (seeds) => {
+  const allSeeds = seeds.reduce((acc, seed, i) => {
+    if (i % 2 === 0) {
+      for (let x = 0; x < seeds[i + 1]; x++) {
+        acc.push(Number(seed) + x);
+      }
+    }
+    return acc;
+  }, []);
+
+  return allSeeds;
 };
